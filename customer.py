@@ -24,11 +24,22 @@ def transaction_in_hour_basis(store_df):
     transaction_count_by_hour_location = store_df.groupby(['store_location', 'hour'])['transaction_id'].count().unstack(
         fill_value=0)
     num_bars = transaction_count_by_hour_location.shape[0] * transaction_count_by_hour_location.shape[1]
+ 
     colors = ['skyblue', 'lightgreen', 'salmon', 'black', 'orange', 'yellow', 'lightpink', 'purple', 'darkcyan',
               'mediumseagreen', 'gold', 'lightsteelblue', 'tomato', 'navy', 'mediumorchid']
+
     if len(colors) < num_bars:
         colors = (colors * ((num_bars // len(colors)) + 1))[:num_bars]
-    st.title("Transactions by Hour of the Day for Each Location")
+
+    st.markdown(
+    """
+    <div style="padding: 10px; border: 2px solid black; border-radius: 10px; background-color: #6F4E37; color: white; width: 100%; max-width: 6S00px; margin: 0 auto;">
+        <h2 style="text-align: center; font-size: 20px;">Transactions by Hour of the Day for Each Location</h2>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
     fig, ax = plt.subplots(figsize=(10, 6))
     transaction_count_by_hour_location.plot(kind='bar', ax=ax, color=colors)
     ax.set_title('Transactions by Hour of the Day for Each Location')
@@ -40,12 +51,21 @@ def transaction_in_hour_basis(store_df):
 
 
 def transaction_in_day_basis(store_df):
+   
+    store_df = pd.read_csv('Coffee_Shop_Sales.csv') 
     store_df['transaction_date'] = pd.to_datetime(store_df['transaction_date'])
     store_df['transaction_amount'] = store_df['transaction_qty'] * store_df['unit_price']
     store_df['transaction_day'] = store_df['transaction_date'].dt.floor('D')
     average_transaction_per_day_location = store_df.groupby(['transaction_day', 'store_location'])['transaction_amount'].mean().reset_index()
-    st.title("Average Transaction Amount per Day by Store Location")
-    st.write("This chart shows the daily average transaction amount for each store location.")
+    st.markdown(
+        """
+        <div style="padding: 15px; border: 2px solid black; border-radius: 10px; background-color: #6F4E37; color: white; width: 100%; max-width: 800px; margin: 0 auto;">
+            <h1 style="text-align: center; margin-bottom: 10px;">Average Transaction Amount per Day by Store Location</h1>
+            <p style="text-align: center; color: white; font-size: 16px;">This chart shows the daily average transaction amount for each store location.</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     fig, ax = plt.subplots(figsize=(12, 6))
     for location in average_transaction_per_day_location['store_location'].unique():
         location_data = average_transaction_per_day_location[
@@ -62,14 +82,26 @@ def transaction_in_day_basis(store_df):
     st.pyplot(fig)
 
 def transaction_in_month_basis(store_df):
+
     store_df['revenue'] = store_df['transaction_qty'] * store_df['unit_price']
+
     daily_revenue = store_df.groupby('transaction_date')['revenue'].sum().reset_index()
+  
     store_df['month'] = store_df['transaction_date'].dt.month
     monthly_stats = store_df.groupby('month').agg({
         'revenue': ['sum', 'mean', 'std']
     }).round(2)
-    st.header("Monthly Revenue Statistics")
+   
+    st.markdown(
+        """
+        <div style="padding: 15px; border: 2px solid black; border-radius: 10px; background-color: #6F4E37; color: white; width: 100%; max-width: 800px; margin: 0 auto;">
+            <h1 style="text-align: center; margin-bottom: 10px;">Monthly Revenue Statistics</h1>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     st.write(monthly_stats)
+    
     fig, ax = plt.subplots(figsize=(10, 6))
     ax.bar(monthly_stats.index, monthly_stats[('revenue', 'sum')], color='skyblue')
     ax.set_title('Monthly Revenue')
@@ -77,19 +109,33 @@ def transaction_in_month_basis(store_df):
     ax.set_ylabel('Revenue ($)')
     ax.set_xticks(monthly_stats.index)
     plt.tight_layout()
+   
     st.pyplot(fig)
 
 def average_price_basis(store_df):
 
+    
     store_df['transaction_date'] = pd.to_datetime(store_df['transaction_date'])
 
+    
     average_price = store_df['unit_price'].mean()
 
+ 
     store_locations = store_df['store_location'].unique()
 
-    st.write(f"### Overall Average Unit Price: ${average_price:.2f}")
+    st.markdown(
+    f"""
+    <div style="padding: 15px; border: 2px solid black; border-radius: 10px; background-color: #6F4E37; color: white; width: 100%; max-width: 800px; margin: 10px auto;">
+        <h3 style="text-align: center; margin-bottom: 10px;">Overall Average Unit Price: ${average_price:.2f}</h3>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
+
+   
     for location in store_locations:
+    
         location_data = store_df[store_df['store_location'] == location]
 
         lower_than_average = location_data[location_data['unit_price'] < average_price]
@@ -109,11 +155,38 @@ def average_price_basis(store_df):
 
         st.pyplot(fig)
 
-        st.write(f"#### Store Location: {location}")
-        st.write(f"Average Unit Price: ${average_price:.2f}")
-        st.write(f"Total Sales for Lower than Average Price: {lower_sales}")
-        st.write(f"Total Sales for Higher than Average Price: {higher_sales}")
-        st.write("---")
+        st.markdown(
+    """
+    <div style="padding: 5px; border: 2px solid black; border-radius: 10px; background-color: #6F4E37; color: white; width: 60%; max-width: 600px; margin: 0 auto;">
+        <h1 style="text-align: center; margin-bottom: 10px;">Store Revenue Breakdown</h1>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+location = "New York"
+average_price = 5.67
+lower_sales = 100
+higher_sales = 200
+
+html_content = f"""
+<div style="padding: 10px; border: 1px solid black; border-radius: 10px; background-color: #F4E1C1; color: #4E4E4E; width: 100%; max-width: 800px; margin: 10px auto;">
+    <p><strong>Store Location:</strong> {location}</p>
+    <p><strong>Average Unit Price:</strong> ${average_price:.2f}</p>
+    <p><strong>Total Sales for Lower than Average Price:</strong> {lower_sales}</p>
+    <p><strong>Total Sales for Higher than Average Price:</strong> {higher_sales}</p>
+</div>
+"""
+st.markdown(html_content, unsafe_allow_html=True)
+
+
+st.markdown(
+    """
+    <hr style="border: 1px solid #6F4E37; width: 90%; margin: 20px auto;">
+    """,
+    unsafe_allow_html=True,
+)
+
 
 def average_category_transaction(store_df):
 
@@ -128,7 +201,15 @@ def average_category_transaction(store_df):
 
     result = pd.merge(max_sales, min_sales, on='store_location', suffixes=('_max', '_min'))
 
-    st.write("Highest and Lowest Average Sales by Store Location", result)
+    st.markdown(
+    f"""
+    <div style="padding: 15px; border: 2px solid black; border-radius: 10px; background-color: #6F4E37; color: white; width: 100%; max-width: 800px; margin: 10px auto;">
+        <h3 style="text-align: center; margin-bottom: 10px;">Highest and Lowest Average Sales by Store Location</h3>
+        <p style="text-align: center; font-size: 18px;">{result}</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
     fig, ax = plt.subplots(figsize=(10, 6))
 
@@ -166,8 +247,10 @@ def category_basis_transaction(store_df):
             store_df[col] = pd.to_datetime(store_df[col], errors='coerce')  # Handle conversion errors gracefully
 
     for category in store_df['product_category'].unique():
+     
         category_data : Any = store_df[store_df['product_category'] == category]
 
+     
         product_sales : Any = category_data.groupby('product_detail')['transaction_qty'].sum().sort_values(ascending=True)
 
         plt.figure(figsize=(12, max(6, len(product_sales) * 0.4)))  # Adjust height dynamically based on the number of products
@@ -186,9 +269,11 @@ def category_basis_transaction(store_df):
 
         plt.tight_layout()
 
-        st.pyplot(plt)
+        st.pyplot(plt) 
+
         plt.clf()
 def category_transaction(store_df):
+    
     store_df['transaction_date'] = pd.to_datetime(store_df['transaction_date'])
 
     end_date = store_df['transaction_date'].max()
@@ -210,16 +295,23 @@ def category_transaction(store_df):
     st.pyplot(fig)
 
 def revenue_day(store_df):
+   
     store_df['revenue'] = store_df['transaction_qty'] * store_df['unit_price']
 
+ 
     store_df['hour'] = pd.to_datetime(store_df['transaction_time']).dt.hour
     store_df['time_of_day'] = pd.cut(
         store_df['hour'],
         bins=[0, 11, 16, 23],
         labels=['Morning', 'Afternoon', 'Evening']
     )
+
+
     lower_manhattan_revenue = store_df[store_df['store_location'] == "Lower Manhattan"].groupby('time_of_day')[
         'revenue'].sum()
+
+
+    
     st.write("Lower Manhattan Revenue by Time of Day:")
     st.write(lower_manhattan_revenue)
 
@@ -247,16 +339,29 @@ def lowest_sale_product(store_df):
     most_sold_time_by_location = lowest_sales_time_location.loc[
         lowest_sales_time_location.groupby('store_location')['transaction_qty'].idxmax()]
 
-    st.write("### Product with the Lowest Sales:", lowest_sales_product)
-    st.write("Most Sold Time by Location for the Product with the Lowest Sales:")
-    st.write(most_sold_time_by_location)
-
+    st.markdown(
+    f"""
+    <div style="padding: 15px; border: 2px solid black; border-radius: 10px; background-color: #6F4E37; color: white; width: 100%; max-width: 800px; margin: 10px auto;">
+        <h3 style="text-align: center; margin-bottom: 10px;">Most Sold Time by Location for the Product with the Lowest Sales:</h3>
+        <p style="text-align: center; font-size: 18px;">{most_sold_time_by_location}</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+    
+    
     lowest_sales_data['hour'] = pd.to_datetime(lowest_sales_data['transaction_time']).dt.hour
 
-    st.write(f"### Hourly Sales Distribution of {lowest_sales_product} by Location")
     plt.figure(figsize=(12, 6))
     sns.barplot(data=lowest_sales_data, x='hour', y='transaction_qty', hue='store_location', ci=None)
-    plt.title(f'Hourly Sales Distribution of {lowest_sales_product} by Location')
+    st.markdown(
+    f"""
+    <div style="padding: 15px; border: 2px solid black; border-radius: 10px; background-color: #6F4E37; color: white; width: 100%; max-width: 800px; margin: 10px auto;">
+        <h3 style="text-align: center; margin-bottom: 10px;">Hourly Sales Distribution of {lowest_sales_product} by Location</h3>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
     plt.xlabel('Hour of Day')
     plt.ylabel('Quantity Sold')
     plt.ylim(0, 2)  # Set the y-axis range from 1 to 10 to fit your specified range
@@ -265,26 +370,48 @@ def lowest_sale_product(store_df):
 
     st.pyplot(plt)
 
-    st.write("### Total Quantity Sold by Location")
+    st.markdown(
+    """
+    <div style="padding: 15px; border: 2px solid black; border-radius: 10px; background-color: #6F4E37; color: white; width: 100%; max-width: 800px; margin: 10px auto;">
+        <h3 style="text-align: center; margin-bottom: 10px;">Total Quantity Sold by Location</h3>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
     st.write(lowest_sales_data.groupby('store_location')['transaction_qty'].sum())
 
 
 def display_barista_revenue(store_df):
+   
     barista_revenue = store_df[store_df['product_detail'] == 'Ouro Brasileiro shot'].groupby("store_location").agg({
         'transaction_qty': 'sum',
-        'unit_price': 'first'  
+        'unit_price': 'first'  # Assuming unit_price is the same for each store_location-product_detail
     }).assign(total_revenue=lambda x: x['transaction_qty'] * x['unit_price'])
 
     barista_revenue = barista_revenue.sort_values('total_revenue', ascending=False)
-
-    st.write("### Total Revenue from Ouro Brasileiro shot by Location")
     plt.figure(figsize=(12, 6))
     sns.barplot(data=barista_revenue.reset_index(), x='store_location', y='total_revenue')
     plt.xticks(rotation=45, ha='right')
-    plt.title('Total Revenue from Ouro Brasileiro shot by Location')
+    st.markdown(
+        """
+        <div style="padding: 15px; border: 2px solid black; border-radius: 10px; background-color: #6F4E37; color: white; width: 100%; max-width: 800px; margin: 0 auto;">
+            <h1 style="text-align: center; margin-bottom: 10px;">Total Revenue from Ouro Brasileiro shot by Location</h1>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     plt.ylabel('Total Revenue ($)')
     plt.tight_layout()
-
     st.pyplot(plt)
-    st.write("### Detailed Revenue Breakdown")
+
+    plt.xticks(rotation=45, ha='right')
+    st.markdown(
+        """
+        <div style="padding: 15px; border: 2px solid black; border-radius: 10px; background-color: #6F4E37; color: white; width: 100%; max-width: 800px; margin: 0 auto;">
+            <h1 style="text-align: center; margin-bottom: 10px;">Detailed Revenue Breakdown</h1>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
     st.write(barista_revenue[['transaction_qty', 'unit_price', 'total_revenue']])
