@@ -5,22 +5,18 @@ import seaborn as sns
 import base64
 import customer
 
-# Set page layout to wide
 st.set_page_config(layout="wide")
 
-# Function to load and encode images
 def get_base64(file_path):
     with open(file_path, 'rb') as f:
         data = f.read()
     return base64.b64encode(data).decode()
 
-# Encode background image and pie chart
 background_image_path = 'background.png'
 pie_chart_path = 'pie chart.png'
 background_image_base64 = get_base64(background_image_path)
 pie_chart_base64 = get_base64(pie_chart_path)
 
-# CSS to set background image
 background_image_style = f"""
     <style>
     .stApp {{
@@ -59,7 +55,6 @@ background_image_style = f"""
 """
 st.markdown(background_image_style, unsafe_allow_html=True)
 
-# Header Section with Coffee Color Background Box
 st.markdown(
     """
     <div style="padding: 10px; border: 2px solid black; border-radius: 10px; background-color: #6F4E37; color: white; width: 100%; max-width: 800px; margin: 0 auto;">
@@ -70,7 +65,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Load your data
 @st.cache_data
 def load_data():
     df = pd.read_excel("coffee_shop.xlsx")
@@ -79,12 +73,11 @@ def load_data():
 
 df, df2 = load_data()
 
-# Top Product Categories Function
 def top_product_categories(df):
     top_products = df.groupby(['store_location', 'product_detail', 'unit_price'])['transaction_qty'].sum().reset_index()
     top_products_by_location = top_products.loc[top_products.groupby('store_location')['transaction_qty'].idxmax()]
     top_products_by_location = top_products_by_location.sort_values('transaction_qty', ascending=False)
-    # Create the bar plot
+ 
     plt.figure(figsize=(16, 10))
     sns.barplot(data=top_products_by_location, x='store_location', y='transaction_qty', hue='product_detail')
     plt.title('Highest Selling Products by Location')
@@ -93,9 +86,7 @@ def top_product_categories(df):
     # Display the plot in Streamlit
     st.pyplot()
 
-# Main Function
 def main():
-    # Sidebar Navigation with larger header and improved styling
     st.sidebar.markdown(
         """
         <h1 style='font-size: 32px; color: black; text-align: center;'>Phoenix</h1>
