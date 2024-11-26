@@ -5,26 +5,22 @@ import seaborn as sns
 import base64
 import customer
 
-# Set page layout to wide
 st.set_page_config(layout="wide")
 
-# Load your data
 df = pd.read_excel("coffee_shop.xlsx")
 df2 = pd.read_csv('New_data.csv')
 
-# Function to load and encode images
 def get_base64(file_path):
     with open(file_path, 'rb') as f:
         data = f.read()
     return base64.b64encode(data).decode()
 
-# Encode background image and pie chart
+
 background_image_path = 'background.png'
 pie_chart_path = 'pie chart.png'
 background_image_base64 = get_base64(background_image_path)
 pie_chart_base64 = get_base64(pie_chart_path)
 
-# CSS to set background image
 background_image_style = f"""
 <style>
     .stApp {{
