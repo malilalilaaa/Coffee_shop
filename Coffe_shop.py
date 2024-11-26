@@ -169,5 +169,5 @@ def main():
         customer.average_category_transaction(df2)
         customer.category_transaction(df2)
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     main()
